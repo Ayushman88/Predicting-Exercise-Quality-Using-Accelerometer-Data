@@ -1,0 +1,28 @@
+# R
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*.Rproj
+*.Rproj.user
+
+# Output files
+*.html
+*.pdf
+*.docx
+*.pptx
+
+# Cache
+.Rcache/
+*.cache/
+
+# Prediction files
+problem_id_*.txt
+
+# Data files (if downloaded locally)
+*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+
