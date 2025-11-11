@@ -7,10 +7,13 @@
 *.Rproj.user
 
 # Output files
-*.html
 *.pdf
 *.docx
 *.pptx
+# HTML files (but allow submission files)
+*.html
+!pml_project.html
+!index.html
 
 # Cache
 .Rcache/

@@ -14,6 +14,10 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, 
                       fig.width = 10, fig.height = 6, cache = TRUE)
+
+# Set QUICK_MODE = TRUE for faster execution (uses sample data and fewer trees)
+# Set QUICK_MODE = FALSE for full analysis (recommended for final submission)
+QUICK_MODE <- FALSE
 ```
 
 ## Executive Summary
@@ -86,9 +90,18 @@ cat("Testing set dimensions:", dim(testing_clean), "\n")
 
 ```{r data-split}
 # Split training data into training and validation sets (70/30)
-inTrain <- createDataPartition(training_clean$classe, p = 0.7, list = FALSE)
-train_set <- training_clean[inTrain, ]
-validation_set <- training_clean[-inTrain, ]
+# For quick mode, use a sample of the data
+if (QUICK_MODE) {
+  cat("QUICK MODE: Using sample of 3000 rows\n")
+  training_sample <- training_clean[sample(nrow(training_clean), 3000), ]
+  inTrain <- createDataPartition(training_sample$classe, p = 0.7, list = FALSE)
+  train_set <- training_sample[inTrain, ]
+  validation_set <- training_sample[-inTrain, ]
+} else {
+  inTrain <- createDataPartition(training_clean$classe, p = 0.7, list = FALSE)
+  train_set <- training_clean[inTrain, ]
+  validation_set <- training_clean[-inTrain, ]
+}
 
 cat("Training set size:", nrow(train_set), "\n")
 cat("Validation set size:", nrow(validation_set), "\n")
@@ -117,16 +130,22 @@ Random Forest was chosen as the primary algorithm because:
 
 ```{r rf-model}
 # Train Random Forest model with cross-validation
-# Using 5-fold CV for efficiency
-ctrl <- trainControl(method = "cv", number = 5, verboseIter = FALSE)
+if (QUICK_MODE) {
+  cat("QUICK MODE: Using 3-fold CV and 50 trees\n")
+  ctrl <- trainControl(method = "cv", number = 3, verboseIter = FALSE)
+  n_trees <- 50
+} else {
+  cat("FULL MODE: Using 5-fold CV and 100 trees\n")
+  ctrl <- trainControl(method = "cv", number = 5, verboseIter = FALSE)
+  n_trees <- 100
+}
 
-# Train model (using subset for faster computation - adjust as needed)
-# For full model, remove the sample_n() function
+# Train model
 rf_model <- train(classe ~ ., 
                   data = train_set,
                   method = "rf",
                   trControl = ctrl,
-                  ntree = 100,
+                  ntree = n_trees,
                   importance = TRUE)
 
 # Model summary
